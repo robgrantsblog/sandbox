@@ -1,0 +1,5 @@
+# Copy to terraform.tfvars (gitignored) and fill in your own values.
+# These must match what you put in ../backend.hcl.
+
+state_bucket_name = "CHANGE-ME-tfstate-bucket"
+lock_table_name   = "CHANGE-ME-tfstate-lock"
