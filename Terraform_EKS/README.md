@@ -1,7 +1,11 @@
 # Terraform EKS
 
 Provisions an AWS EKS cluster, links it to a Route53 domain over HTTPS, and
-deploys a minimal example app to prove the whole chain works end to end.
+deploys a minimal example app to prove the whole chain works end to end. This
+is an all in one deployment which you would not do in a typical environment. 
+It is used for example only so that you can see all parts. It is wiser to put 
+all of your files into seperate directories based on components. For example 
+your network components in one folder and your EKS components in another.
 
 ## What this builds
 
