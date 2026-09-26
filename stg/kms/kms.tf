@@ -1,10 +1,5 @@
-resource "aws_kms_key" "eks_secrets" {
-  description             = "Envelope encryption key for ${var.cluster_name} Kubernetes secrets"
-  deletion_window_in_days = 30
-  enable_key_rotation     = true
-}
+module "eks_secrets_kms" {
+  source = "git::ssh://git@github.com/robgrantsblog/sandbox_modules.git//modules/eks-secrets-kms?ref=v1.0.0"
 
-resource "aws_kms_alias" "eks_secrets" {
-  name          = "alias/${var.cluster_name}-eks-secrets"
-  target_key_id = aws_kms_key.eks_secrets.key_id
+  cluster_name = var.cluster_name
 }

@@ -19,6 +19,11 @@ variable "private_subnet_ids" {
   type        = list(string)
 }
 
+variable "cluster_endpoint_public_access_cidrs" {
+  description = "Trusted IPv4 CIDRs allowed to reach the public EKS API endpoint; set narrow ranges such as an office/VPN /32."
+  type        = list(string)
+}
+
 variable "kms_key_arn" {
   description = "KMS key ARN used to encrypt Kubernetes secrets"
   type        = string
@@ -27,29 +32,5 @@ variable "kms_key_arn" {
 variable "cluster_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
-  default     = "1.30"
-}
-
-variable "node_instance_types" {
-  description = "EC2 instance types for the managed node group"
-  type        = list(string)
-  default     = ["t3.medium"]
-}
-
-variable "node_desired_size" {
-  description = "Desired number of worker nodes"
-  type        = number
-  default     = 2
-}
-
-variable "node_min_size" {
-  description = "Minimum number of worker nodes"
-  type        = number
-  default     = 1
-}
-
-variable "node_max_size" {
-  description = "Maximum number of worker nodes"
-  type        = number
-  default     = 3
+  default     = "1.36"
 }

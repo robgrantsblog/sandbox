@@ -5,19 +5,29 @@ deploys a minimal example app to prove the whole chain works end to end.
 
 ## What this builds
 
-- **VPC** ([network/vpc](network/vpc/)) — 3 AZs, public + private subnets, single NAT gateway
-- **EKS cluster** ([eks](eks/)) — control plane and worker nodes in private
+- **VPC** ([network/vpc](network/vpc/), backed by the reusable
+  [eks-vpc module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/eks-vpc)) — 3 AZs, public + private subnets, single NAT gateway
+- **KMS key** ([kms](kms/), implemented by the reusable
+  [eks-secrets-kms module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/eks-secrets-kms)) — customer-managed encryption key for Kubernetes Secrets
+- **EKS cluster** ([eks](eks/), implemented by the reusable
+  [eks-cluster module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/eks-cluster)) — control plane and worker nodes in private
   subnets, managed node group, IRSA enabled, secrets encrypted with a
   dedicated KMS key ([kms](kms/)), control-plane audit/API logs shipped
   to CloudWatch
-- **Domain + TLS** ([network/dns](network/dns/), [network/acm](network/acm/)) — looks up
+- **Domain + TLS** ([network/dns](network/dns/), backed by the reusable
+  [route53-zone-lookup module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/route53-zone-lookup), and
+  [network/acm](network/acm/), backed by the reusable
+  [acm-dns-certificate module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/acm-dns-certificate)) — looks up
   your existing Route53 hosted zone and provisions a DNS-validated ACM
   certificate for the domain (plus `*.domain`)
-- **Ingress plumbing** ([lb](lb/), [iam](iam/)) — installs the
+- **Ingress plumbing** ([lb](lb/), backed by the reusable
+  [eks-addons module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/eks-addons), and [iam](iam/), backed by the reusable
+  [eks-irsa module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/eks-irsa)) — installs the
   AWS Load Balancer Controller (creates an ALB from a Kubernetes `Ingress`)
   and external-dns (keeps the Route53 record pointed at that ALB
   automatically), each with a narrowly-scoped IAM role via IRSA
-- **WAF** ([network/waf](network/waf/)) — a regional Web ACL with AWS's Common Rule Set
+- **WAF** ([network/waf](network/waf/), backed by the reusable
+  [alb-waf module](https://github.com/robgrantsblog/sandbox_modules/tree/main/modules/alb-waf)) — a regional Web ACL with AWS's Common Rule Set
   and Known Bad Inputs managed rules, attached to the ALB
 - **Example app** ([services/example](services/example/)) — a hardened nginx
   deployment (non-root, read-only root filesystem, dropped capabilities,
@@ -102,10 +112,18 @@ and can be retired separately after confirming nothing else uses it.
 ### 3. Set stack inputs and apply in dependency order
 
 Create a gitignored `terraform.tfvars` in each stack directory, supplying the
-required inputs listed in that directory's `variables.tf`. Pass outputs from
+required inputs listed in that directory's `variables.tf`. For the `lb` stack,
+set explicit, reviewed chart versions for both add-ons. Pass outputs from
 prerequisite stacks as inputs. Apply in this order: VPC and KMS, EKS, DNS and
 WAF, ACM and IAM, load-balancer controllers, then the example service. Run from
 each stack's own directory:
+
+The EKS demo stack explicitly enables public API access and grants the applying
+principal cluster-admin for convenience. Set `cluster_endpoint_public_access_cidrs`
+in `stg/eks/terraform.tfvars` to a narrow trusted IPv4 CIDR (for example, your
+office/VPN `/32`) before applying; do not use `0.0.0.0/0`. The reusable module
+in [sandbox_modules](../sandbox_modules/modules/eks-cluster/) defaults to a
+private endpoint and explicit IAM access entries instead.
 
 ```bash
 terraform plan

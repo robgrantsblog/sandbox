@@ -1,9 +1,9 @@
 output "route53_zone_id" {
   description = "Route53 hosted zone ID for the domain"
-  value       = data.aws_route53_zone.this.zone_id
+  value       = module.route53_zone.zone_id
 }
 
 output "route53_zone_arn" {
   description = "Public Route53 hosted-zone ARN used to scope external-dns access"
-  value       = data.aws_route53_zone.this.arn
+  value       = module.route53_zone.zone_arn
 }

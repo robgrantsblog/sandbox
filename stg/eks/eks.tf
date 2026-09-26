@@ -1,40 +1,17 @@
 module "eks" {
-  source  = "terraform-aws-modules/eks/aws"
-  version = "~> 20.0"
+  source = "git::ssh://git@github.com/robgrantsblog/sandbox_modules.git//modules/eks-cluster?ref=v1.0.0"
 
-  cluster_name    = var.cluster_name
-  cluster_version = var.cluster_version
+  cluster_name       = var.cluster_name
+  cluster_version    = var.cluster_version
+  vpc_id             = var.vpc_id
+  private_subnet_ids = var.private_subnet_ids
+  kms_key_arn        = var.kms_key_arn
 
-  vpc_id                   = var.vpc_id
-  subnet_ids               = var.private_subnet_ids
-  control_plane_subnet_ids = var.private_subnet_ids
+  # This demo keeps the API endpoint public for operator access. Restrict it to
+  # trusted IPv4 CIDRs in this stack's terraform.tfvars before applying.
+  cluster_endpoint_public_access       = true
+  cluster_endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
 
-  cluster_endpoint_public_access = true
-
-  # Grants the caller running `terraform apply` cluster-admin access
+  # Demo convenience only; production callers should use explicit access_entries.
   enable_cluster_creator_admin_permissions = true
-
-  # Creates the IAM OIDC provider needed for IRSA (used by the LB controller & external-dns)
-  enable_irsa = true
-
-  # Envelope-encrypts Kubernetes Secrets at rest with our own KMS key
-  cluster_encryption_config = {
-    provider_key_arn = var.kms_key_arn
-    resources        = ["secrets"]
-  }
-
-  # Ship control plane audit/API logs to CloudWatch for incident investigation
-  cluster_enabled_log_types              = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
-  cloudwatch_log_group_retention_in_days = 30
-
-  eks_managed_node_groups = {
-    default = {
-      instance_types = var.node_instance_types
-      capacity_type  = "ON_DEMAND"
-
-      min_size     = var.node_min_size
-      max_size     = var.node_max_size
-      desired_size = var.node_desired_size
-    }
-  }
 }

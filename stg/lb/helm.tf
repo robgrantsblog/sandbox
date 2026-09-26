@@ -1,86 +1,13 @@
-# Creates ALBs/NLBs in response to Kubernetes Ingress/Service resources
-resource "helm_release" "aws_load_balancer_controller" {
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+module "eks_addons" {
+  source = "git::ssh://git@github.com/robgrantsblog/sandbox_modules.git//modules/eks-addons?ref=v1.0.0"
 
-  set {
-    name  = "clusterName"
-    value = var.cluster_name
-  }
+  cluster_name           = var.cluster_name
+  aws_region             = var.aws_region
+  vpc_id                 = var.vpc_id
+  domain_name            = var.domain_name
+  lb_controller_role_arn = var.lb_controller_role_arn
+  external_dns_role_arn  = var.external_dns_role_arn
 
-  set {
-    name  = "region"
-    value = var.aws_region
-  }
-
-  set {
-    name  = "vpcId"
-    value = var.vpc_id
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = var.lb_controller_role_arn
-  }
-}
-
-# Watches Ingress/Service resources and keeps Route53 records in sync with the LB's DNS name
-resource "helm_release" "external_dns" {
-  name       = "external-dns"
-  repository = "https://kubernetes-sigs.github.io/external-dns/"
-  chart      = "external-dns"
-  namespace  = "kube-system"
-
-  set {
-    name  = "provider"
-    value = "aws"
-  }
-
-  set {
-    name  = "aws.region"
-    value = var.aws_region
-  }
-
-  set {
-    name  = "txtOwnerId"
-    value = var.cluster_name
-  }
-
-  set {
-    name  = "domainFilters[0]"
-    value = var.domain_name
-  }
-
-  # upsert-only: external-dns will create/update records but never delete them
-  set {
-    name  = "policy"
-    value = "upsert-only"
-  }
-
-  set {
-    name  = "serviceAccount.create"
-    value = "true"
-  }
-
-  set {
-    name  = "serviceAccount.name"
-    value = "external-dns"
-  }
-
-  set {
-    name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = var.external_dns_role_arn
-  }
+  aws_load_balancer_controller_chart_version = var.aws_load_balancer_controller_chart_version
+  external_dns_chart_version                 = var.external_dns_chart_version
 }

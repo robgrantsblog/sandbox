@@ -38,3 +38,13 @@ variable "external_dns_role_arn" {
   description = "IAM role ARN exported by the IRSA stack for external-dns"
   type        = string
 }
+
+variable "aws_load_balancer_controller_chart_version" {
+  description = "Pinned AWS Load Balancer Controller Helm chart version"
+  type        = string
+}
+
+variable "external_dns_chart_version" {
+  description = "Pinned external-dns Helm chart version"
+  type        = string
+}

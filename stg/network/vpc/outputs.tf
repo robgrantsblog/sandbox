@@ -5,5 +5,5 @@ output "vpc_id" {
 
 output "private_subnet_ids" {
   description = "IDs of private subnets for EKS"
-  value       = module.vpc.private_subnets
+  value       = module.vpc.private_subnet_ids
 }
