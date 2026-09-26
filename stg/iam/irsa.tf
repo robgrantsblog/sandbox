@@ -9,7 +9,7 @@ module "lb_controller_irsa_role" {
 
   oidc_providers = {
     main = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = var.eks_oidc_provider_arn
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
@@ -23,11 +23,11 @@ module "external_dns_irsa_role" {
   role_name = "${var.cluster_name}-external-dns"
 
   attach_external_dns_policy    = true
-  external_dns_hosted_zone_arns = [data.aws_route53_zone.this.arn]
+  external_dns_hosted_zone_arns = [var.route53_zone_arn]
 
   oidc_providers = {
     main = {
-      provider_arn               = module.eks.oidc_provider_arn
+      provider_arn               = var.eks_oidc_provider_arn
       namespace_service_accounts = ["kube-system:external-dns"]
     }
   }

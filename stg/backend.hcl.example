@@ -1,0 +1,10 @@
+# Copy this file into each standalone stack directory as backend.hcl (gitignored).
+# Match bucket/table values from global/bootstrap_s3, and use a unique key per stack.
+# Then run from that stack directory:
+#   terraform init -backend-config=backend.hcl
+
+bucket         = "CHANGE-ME-tfstate-bucket"
+key            = "stg/CHANGE-ME/terraform.tfstate"
+region         = "us-east-1"
+dynamodb_table = "CHANGE-ME-tfstate-lock"
+encrypt        = true

@@ -7,7 +7,7 @@ resource "helm_release" "aws_load_balancer_controller" {
 
   set {
     name  = "clusterName"
-    value = module.eks.cluster_name
+    value = var.cluster_name
   }
 
   set {
@@ -17,7 +17,7 @@ resource "helm_release" "aws_load_balancer_controller" {
 
   set {
     name  = "vpcId"
-    value = module.vpc.vpc_id
+    value = var.vpc_id
   }
 
   set {
@@ -32,10 +32,8 @@ resource "helm_release" "aws_load_balancer_controller" {
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.lb_controller_irsa_role.iam_role_arn
+    value = var.lb_controller_role_arn
   }
-
-  depends_on = [module.eks]
 }
 
 # Watches Ingress/Service resources and keeps Route53 records in sync with the LB's DNS name
@@ -57,7 +55,7 @@ resource "helm_release" "external_dns" {
 
   set {
     name  = "txtOwnerId"
-    value = module.eks.cluster_name
+    value = var.cluster_name
   }
 
   set {
@@ -83,8 +81,6 @@ resource "helm_release" "external_dns" {
 
   set {
     name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
-    value = module.external_dns_irsa_role.iam_role_arn
+    value = var.external_dns_role_arn
   }
-
-  depends_on = [module.eks]
 }

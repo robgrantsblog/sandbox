@@ -1,9 +1,0 @@
-# Copy this to backend.hcl (gitignored) and fill in your own values, matching
-# whatever you set in bootstrap/main.tf. Then run:
-#   terraform init -backend-config=backend.hcl
-
-bucket         = "CHANGE-ME-tfstate-bucket"
-key            = "eks/terraform.tfstate"
-region         = "us-east-1"
-dynamodb_table = "CHANGE-ME-tfstate-lock"
-encrypt        = true

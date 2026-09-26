@@ -1,13 +1,29 @@
 # sandbox
-This is where I test various things.
 
-## Terraform_EKS
+A collection of infrastructure experiments and demos.
 
-Terraform config that provisions an AWS EKS cluster, links it to a Route53
-domain over HTTPS (ALB + ACM + external-dns), and includes some baseline
-security hardening (KMS-encrypted secrets, control plane logging, WAF, IRSA,
-hardened pod security context). See [Terraform_EKS/README.md](Terraform_EKS/README.md)
-for details and deployment steps.
+## Current projects
 
-This is for demonstration purposes only — not intended to be deployed as-is
-for a real production workload.
+### Shared Terraform state bootstrap
+
+[global/bootstrap_s3](global/bootstrap_s3/) contains a one-time AWS bootstrap
+configuration for the shared Terraform state S3 bucket and DynamoDB lock table.
+The bucket has versioning, SSE-KMS encryption, public-access blocking, and
+Terraform `prevent_destroy` protection. Its own state uses Terraform's local
+backend.
+
+### Staging EKS demo
+
+[stg](stg/) provisions a demonstration EKS environment, divided into standalone
+Terraform stacks for VPC, DNS, ACM, WAF, KMS, EKS, IRSA roles, Helm controllers,
+and an example Kubernetes service. Each stack has its own remote-state key and
+its own ignored `terraform.tfvars`; values from prerequisite stacks are passed
+to dependent stacks as inputs.
+
+See [stg/README.md](stg/README.md) for prerequisites, backend setup, stack order,
+and deployment instructions.
+
+This is a learning/demo configuration, not a production-ready deployment. The
+EKS API endpoint is public by default, cluster creator permissions are
+administrative, and AWS resources can incur ongoing costs. Review the staging
+README and Terraform plans before applying.

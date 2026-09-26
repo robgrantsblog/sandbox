@@ -1,0 +1,5 @@
+# Reference values for the standalone stacks that use these variables.
+# Put each value in the relevant stack's terraform.tfvars, not in stg/.
+
+cluster_name = "CHANGE-ME-eks-cluster"
+domain_name  = "CHANGE-ME.example.com"

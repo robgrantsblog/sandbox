@@ -9,20 +9,29 @@ variable "cluster_name" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "ID of the VPC created by the network VPC stack"
+  type        = string
+}
+
+variable "private_subnet_ids" {
+  description = "Private subnet IDs for the EKS cluster and node groups"
+  type        = list(string)
+}
+
+variable "kms_key_arn" {
+  description = "KMS key ARN used to encrypt Kubernetes secrets"
+  type        = string
+}
+
 variable "cluster_version" {
   description = "Kubernetes version for the EKS cluster"
   type        = string
   default     = "1.30"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
 variable "node_instance_types" {
-  description = "Instance types for the managed node group"
+  description = "EC2 instance types for the managed node group"
   type        = list(string)
   default     = ["t3.medium"]
 }
@@ -43,9 +52,4 @@ variable "node_max_size" {
   description = "Maximum number of worker nodes"
   type        = number
   default     = 3
-}
-
-variable "domain_name" {
-  description = "Domain name (must already have a hosted zone in this AWS account's Route53) to link to the cluster's ingress"
-  type        = string
 }

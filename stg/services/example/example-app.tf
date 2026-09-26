@@ -116,7 +116,6 @@ resource "kubernetes_deployment" "example" {
     }
   }
 
-  depends_on = [helm_release.aws_load_balancer_controller]
 }
 
 resource "kubernetes_service" "example" {
@@ -148,8 +147,8 @@ resource "kubernetes_ingress_v1" "example" {
       "alb.ingress.kubernetes.io/target-type"     = "ip"
       "alb.ingress.kubernetes.io/listen-ports"    = jsonencode([{ "HTTP" = 80 }, { "HTTPS" = 443 }])
       "alb.ingress.kubernetes.io/ssl-redirect"    = "443"
-      "alb.ingress.kubernetes.io/certificate-arn" = aws_acm_certificate_validation.this.certificate_arn
-      "alb.ingress.kubernetes.io/wafv2-acl-arn"   = aws_wafv2_web_acl.example.arn
+      "alb.ingress.kubernetes.io/certificate-arn" = var.acm_certificate_arn
+      "alb.ingress.kubernetes.io/wafv2-acl-arn"   = var.web_acl_arn
       "external-dns.alpha.kubernetes.io/hostname" = var.domain_name
     }
   }
@@ -177,5 +176,4 @@ resource "kubernetes_ingress_v1" "example" {
     }
   }
 
-  depends_on = [helm_release.aws_load_balancer_controller]
 }

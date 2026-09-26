@@ -1,4 +1,0 @@
-# Copy to terraform.tfvars (gitignored) and fill in your own values.
-
-cluster_name = "CHANGE-ME-eks-cluster"
-domain_name  = "CHANGE-ME.example.com"

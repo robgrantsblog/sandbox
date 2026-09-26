@@ -5,9 +5,9 @@ module "eks" {
   cluster_name    = var.cluster_name
   cluster_version = var.cluster_version
 
-  vpc_id                   = module.vpc.vpc_id
-  subnet_ids               = module.vpc.private_subnets
-  control_plane_subnet_ids = module.vpc.private_subnets
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.private_subnet_ids
+  control_plane_subnet_ids = var.private_subnet_ids
 
   cluster_endpoint_public_access = true
 
@@ -19,7 +19,7 @@ module "eks" {
 
   # Envelope-encrypts Kubernetes Secrets at rest with our own KMS key
   cluster_encryption_config = {
-    provider_key_arn = aws_kms_key.eks_secrets.arn
+    provider_key_arn = var.kms_key_arn
     resources        = ["secrets"]
   }
 
