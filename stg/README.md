@@ -53,7 +53,8 @@ stg/
 ```
 
 Each directory containing a Terraform stack has its own provider/backend
-configuration. The `stg/` root is not a Terraform stack, so it does not use a
+configuration and requires Terraform >= 1.10 for native S3 lockfiles. The
+`stg/` root is not a Terraform stack, so it does not use a
 root-level `terraform.tfvars`; keep one gitignored `terraform.tfvars` inside
 each stack directory instead. Real `backend.hcl` and `terraform.tfvars` files
 are gitignored; only example templates are committed. Use a different S3
@@ -61,7 +62,7 @@ are gitignored; only example templates are committed. Use a different S3
 
 ## Prerequisites
 
-- Terraform >= 1.5
+- Terraform >= 1.10 (required for S3 native state locking with `use_lockfile`)
 - AWS CLI, configured with credentials that can create VPC/EKS/IAM/ACM/Route53/WAF resources
 - An existing Route53 public hosted zone for your domain
 - The AWS CLI must remain installed at apply/plan time — the `kubernetes` and
@@ -85,15 +86,18 @@ cd ../../stg
 
 ```bash
 cp -n backend.hcl.example eks/backend.hcl
-# Edit eks/backend.hcl: use the bootstrap bucket/table and keep its key as eks/terraform.tfstate.
+# Edit eks/backend.hcl: use the bootstrap bucket and keep its key as eks/terraform.tfstate.
 cd eks
-terraform init -backend-config=backend.hcl
+terraform init -reconfigure -backend-config=backend.hcl
 ```
 
 Repeat for `iam`, `kms`, `lb`, `network/acm`, `network/dns`, `network/vpc`,
 `network/waf`, and `services/example`. Copy the template into each directory,
-use the same bucket and lock table, and set a unique `key` for every stack
-(for example, `stg/network/vpc/terraform.tfstate`) before initializing it.
+use the same bucket and set a unique `key` for every stack (for example,
+`stg/network/vpc/terraform.tfstate`) before initializing it. The backend uses
+S3's native `.tflock` objects; it no longer configures DynamoDB locking. The
+bootstrap still provisions the old DynamoDB table for now; it is left in place
+and can be retired separately after confirming nothing else uses it.
 
 ### 3. Set stack inputs and apply in dependency order
 
@@ -128,7 +132,9 @@ Route53 record. Once it has, `https://<your-domain>` should serve
 ## Tearing down
 
 Destroy component stacks individually, in reverse dependency order. Leave the
-backend bucket and lock table in place until every stack has been retired.
+backend bucket in place until every stack has been retired. The legacy
+DynamoDB lock table remains provisioned by the bootstrap and should only be
+removed as a separate, deliberate cleanup.
 
 ## Cost
 

@@ -4,6 +4,6 @@ variable "state_bucket_name" {
 }
 
 variable "lock_table_name" {
-  description = "DynamoDB table name for Terraform state locking"
+  description = "Legacy DynamoDB lock table name, retained for existing clients"
   type        = string
 }

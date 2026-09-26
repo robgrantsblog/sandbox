@@ -1,13 +1,14 @@
-# One-time bootstrap: creates the S3 bucket + DynamoDB lock table that the
-# main Terraform_EKS config uses as its remote backend (see ../versions.tf).
+# One-time bootstrap: creates the S3 state bucket and a legacy DynamoDB lock
+# table. New staging stacks use S3 native lockfiles; the table is retained for
+# compatibility until it is deliberately retired.
 # This config's own state stays local — run it once, then never again
 # unless you're changing the backend itself.
 #
 # Usage:
-#   cd bootstrap
+#   cd global/bootstrap_s3
 #   cp terraform.tfvars.example terraform.tfvars   # fill in your own values
 #   terraform init && terraform apply
-#   cd .. && terraform init -backend-config=backend.hcl
+#   cd ../../stg/<stack> and initialize with that stack's backend.hcl
 
 resource "aws_s3_bucket" "tfstate" {
   bucket = var.state_bucket_name

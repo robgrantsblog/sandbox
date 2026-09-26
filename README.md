@@ -7,10 +7,12 @@ A collection of infrastructure experiments and demos.
 ### Shared Terraform state bootstrap
 
 [global/bootstrap_s3](global/bootstrap_s3/) contains a one-time AWS bootstrap
-configuration for the shared Terraform state S3 bucket and DynamoDB lock table.
+configuration for the shared Terraform state S3 bucket and a legacy DynamoDB
+lock table. Staging stacks use S3 native lockfiles (`use_lockfile = true`); the
+table is retained for compatibility and is not currently used by those stacks.
 The bucket has versioning, SSE-KMS encryption, public-access blocking, and
-Terraform `prevent_destroy` protection. Its own state uses Terraform's local
-backend.
+Terraform `prevent_destroy` protection. The bootstrap's own state uses
+Terraform's local backend.
 
 ### Staging EKS demo
 
